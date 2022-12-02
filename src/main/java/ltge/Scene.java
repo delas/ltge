@@ -20,7 +20,7 @@ public class Scene {
 		add(object, new Point(col, row), layer);
 	}
 	
-	public void add(AnimatedSceneObject object, Point logicalCoordinates, int layer) {
+	public synchronized void add(AnimatedSceneObject object, Point logicalCoordinates, int layer) {
 		layers.add(layer);
 		if (!objects.containsKey(layer)) {
 			objects.put(layer, new HashMap<>());
@@ -34,7 +34,7 @@ public class Scene {
 		object.setScene(this);
 	}
 	
-	public void remove(AnimatedSceneObject obj) {
+	public synchronized void remove(AnimatedSceneObject obj) {
 		Point coords = objectsToCoordinates.get(obj);
 		Integer layer = objectsToLayer.get(obj);
 		if (coords != null) {

@@ -10,6 +10,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import lombok.Getter;
 import ltge.projections.OrthographicProjection;
 
 /*
@@ -32,6 +33,7 @@ public class Engine implements Runnable {
 	private Map map;
 	private Scene scene;
 	private Rectangle board = new Rectangle();
+	@Getter private Point drawingOrigin = new Point(0, 0);
 	
 	private Object lock = new Object();
 	
@@ -81,38 +83,29 @@ public class Engine implements Runnable {
 		}
 		canvas.drawImage(
 				mapTilesCache,
-				board.x,
-				board.y,
+				drawingOrigin.x + board.x,
+				drawingOrigin.y + board.y,
 				board.width,
 				board.height, null);
 		
 		// draw scene
-		for (int layer : scene.getLayers()) {
-			for(Point p : scene.getObjectsAtCoordinates(layer)) {
-				TileType t = map.get(p.y, p.x).getType();
-				Point origin = coordinateSystem.toActualCoordinates(p.y, p.x);
-				List<AnimatedSceneObject> objects = scene.getObjects(p, layer);
-//				int objsInSameTile = objects.size();
-				for (AnimatedSceneObject obj : objects) {
-					canvas.drawImage(obj.getSprite(),
-							board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
-							board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
-							obj.getSprite().getWidth(),
-							obj.getSprite().getHeight(),
-							null);
+		synchronized (scene) {
+			for (int layer : scene.getLayers()) {
+				for(Point p : scene.getObjectsAtCoordinates(layer)) {
+					TileType t = map.get(p.y, p.x).getType();
+					Point origin = coordinateSystem.toActualCoordinates(p.y, p.x);
+					List<AnimatedSceneObject> objects = scene.getObjects(p, layer);
+	//				int objsInSameTile = objects.size();
+					for (AnimatedSceneObject obj : objects) {
+						canvas.drawImage(obj.getSprite(),
+								drawingOrigin.x + board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
+								drawingOrigin.y + board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
+								obj.getSprite().getWidth(),
+								obj.getSprite().getHeight(),
+								null);
+					}
 				}
 			}
-			/*for(AnimatedSceneObject obj : scene.getObjects(layer)) {
-				TileType t = map.get(obj.getRow(), obj.getCol()).getType();
-				Point origin = coordinateSystem.toActualCoordinates(obj.getCol(), obj.getRow());
-				int objsInSameTile = scene.getObjects(layer, obj.getCol(), obj.getRow());
-				canvas.drawImage(obj.getSprite(),
-						board.x + origin.x + (t.getWidth() / (objsInSameTile + 1)) - (obj.getSprite().getWidth() / (objsInSameTile + 1)),
-						board.y + origin.y + (t.getHeight() / (objsInSameTile + 1)) - (obj.getSprite().getHeight() / (objsInSameTile + 1)),
-						obj.getSprite().getWidth(),
-						obj.getSprite().getHeight(),
-						null);
-			}*/
 		}
 	}
 	
