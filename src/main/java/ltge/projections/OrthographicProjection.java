@@ -17,7 +17,7 @@ public class OrthographicProjection {
 	}
 	
 	public Point toActualCoordinates(int row, int col) {
-		return new Point(row * tileWidth, col * tileHeight);
+		return new Point(col * tileWidth, row * tileHeight);
 	}
 
 	public Rectangle getBoardSize(Map map) {

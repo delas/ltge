@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import ltge.projections.OrthographicProjection;
 
@@ -57,7 +58,7 @@ public class Engine implements Runnable {
 		for (int r = 0; r < map.getRows(); r++) {
 			for (int c = 0; c < map.getCols(); c++) {
 				TileType t = map.get(r, c).getType();
-				Point origin = coordinateSystem.toActualCoordinates(c, r);
+				Point origin = coordinateSystem.toActualCoordinates(r, c);
 				mapTilesCache.getGraphics().drawImage(
 						t.getSprite(),
 						origin.x,
@@ -87,16 +88,31 @@ public class Engine implements Runnable {
 		
 		// draw scene
 		for (int layer : scene.getLayers()) {
-			for(AnimatedSceneObject obj : scene.getObjects(layer)) {
+			for(Point p : scene.getObjectsAtCoordinates(layer)) {
+				TileType t = map.get(p.y, p.x).getType();
+				Point origin = coordinateSystem.toActualCoordinates(p.y, p.x);
+				List<AnimatedSceneObject> objects = scene.getObjects(p, layer);
+//				int objsInSameTile = objects.size();
+				for (AnimatedSceneObject obj : objects) {
+					canvas.drawImage(obj.getSprite(),
+							board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
+							board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
+							obj.getSprite().getWidth(),
+							obj.getSprite().getHeight(),
+							null);
+				}
+			}
+			/*for(AnimatedSceneObject obj : scene.getObjects(layer)) {
 				TileType t = map.get(obj.getRow(), obj.getCol()).getType();
 				Point origin = coordinateSystem.toActualCoordinates(obj.getCol(), obj.getRow());
+				int objsInSameTile = scene.getObjects(layer, obj.getCol(), obj.getRow());
 				canvas.drawImage(obj.getSprite(),
-						board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
-						board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
+						board.x + origin.x + (t.getWidth() / (objsInSameTile + 1)) - (obj.getSprite().getWidth() / (objsInSameTile + 1)),
+						board.y + origin.y + (t.getHeight() / (objsInSameTile + 1)) - (obj.getSprite().getHeight() / (objsInSameTile + 1)),
 						obj.getSprite().getWidth(),
 						obj.getSprite().getHeight(),
 						null);
-			}
+			}*/
 		}
 	}
 	

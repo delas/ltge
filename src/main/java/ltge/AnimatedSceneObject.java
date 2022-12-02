@@ -5,19 +5,24 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AnimatedSceneObject {
 
+	private static int counter = 1;
+	
+	@EqualsAndHashCode.Include @Getter private int id;
 	private BufferedImage[] sprite;
 	private int msBetweenFrames;
-	@Getter @Setter private int row;
-	@Getter @Setter private int col;
 	private long lastPaint = System.nanoTime();
 	private int progress = 0;
-
+	@Setter private Scene scene;
+	
 	public AnimatedSceneObject(int msBetweenFrames, String...files) {
+		this.id = counter++;
 		this.msBetweenFrames = msBetweenFrames;
 		try {
 			sprite = new BufferedImage[files.length];
@@ -35,5 +40,23 @@ public class AnimatedSceneObject {
 			lastPaint = System.nanoTime();
 		}
 		return sprite[progress];
+	}
+	
+	public int getRow() {
+		return scene.getObjectCoordinates(this).y;
+	}
+	
+	public int getCol() {
+		return scene.getObjectCoordinates(this).x;
+	}
+	
+	public int getLayer() {
+		return scene.getObjectLayer(this);
+	}
+	
+	public void setPosition(int row, int col) {
+		int l = getLayer();
+		scene.remove(this);
+		scene.add(this, row, col, l);
 	}
 }
