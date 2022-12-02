@@ -70,8 +70,15 @@ public class AnimatedSceneObject {
 	}
 	
 	public void setPosition(int row, int col) {
-		int l = getLayer();
-		scene.remove(this);
-		scene.add(this, row, col, l);
+		if (row < 0) row = 0;
+		if (col < 0) col = 0;
+		if (row >= scene.getMap().getRows()) row = scene.getMap().getRows() - 1;
+		if (col >= scene.getMap().getCols()) col = scene.getMap().getCols() - 1;
+		
+		if (row != getRow() || col != getCol()) {
+			int l = getLayer();
+			scene.remove(this);
+			scene.add(this, row, col, l);
+		}
 	}
 }
