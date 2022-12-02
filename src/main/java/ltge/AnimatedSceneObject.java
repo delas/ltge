@@ -16,12 +16,17 @@ public class AnimatedSceneObject {
 	private static int counter = 1;
 	
 	@EqualsAndHashCode.Include @Getter private int id;
+	@Getter private String name;
 	private BufferedImage[] sprite;
 	@Getter private Rectangle boundingBox;
 	private int msBetweenFrames;
 	private long lastPaint = System.nanoTime();
 	private int progress = 0;
 	@Setter private Scene scene;
+	
+	public AnimatedSceneObject(String file) {
+		this(null, 0, file);
+	}
 	
 	public AnimatedSceneObject(Rectangle boundingBox, String file) {
 		this(boundingBox, 0, file);
@@ -34,6 +39,7 @@ public class AnimatedSceneObject {
 	public AnimatedSceneObject(Rectangle boundingBox, int msBetweenFrames, String...files) {
 		this.id = counter++;
 		this.msBetweenFrames = msBetweenFrames;
+		this.name = files[0];
 		try {
 			sprite = new BufferedImage[files.length];
 			for(int i = 0; i < files.length; i++) {
@@ -48,7 +54,7 @@ public class AnimatedSceneObject {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public BufferedImage getSprite() {
 		if (System.nanoTime() >= lastPaint + (msBetweenFrames * 1000000)) {
 			progress = (progress + 1) % sprite.length;

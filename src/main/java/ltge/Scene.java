@@ -1,21 +1,27 @@
 package ltge;
 
 import java.awt.Point;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import lombok.Getter;
+
 public class Scene {
 
+	@Getter private Map map;
 	private HashMap<Integer, HashMap<Point, LinkedList<AnimatedSceneObject>>> objects = new HashMap<>();
 	private HashMap<AnimatedSceneObject, Point> objectsToCoordinates = new HashMap<>();
 	private HashMap<AnimatedSceneObject, Integer> objectsToLayer = new HashMap<>();
 	private TreeSet<Integer> layers = new TreeSet<>();
 	
+	public Scene(Map map) {
+		this.map = map;
+	}
+
 	public void add(AnimatedSceneObject object, int row, int col, int layer) {
 		add(object, new Point(col, row), layer);
 	}
@@ -59,11 +65,20 @@ public class Scene {
 		return null;
 	}
 
-	public Set<Point> getObjectsAtCoordinates(int layer) {
+	public List<Point> getObjectsAtCoordinates(int layer) {
 		if (!objects.containsKey(layer)) {
-			return new HashSet<>();
+			return new LinkedList<>();
 		}
-		return objects.get(layer).keySet();
+		List<Point> points = new LinkedList<>(objects.get(layer).keySet());
+		points.sort(new Comparator<Point>() {
+			@Override
+			public int compare(Point o1, Point o2) {
+				int p1 = o1.x + o1.y;
+				int p2 = o2.x + o2.y;
+				return (p1 == p2)? 0 : ((p1 < p2)? -1 : 1); 
+			}
+		});
+		return points;
 	}
 	
 	public Point getObjectCoordinates(AnimatedSceneObject object) {

@@ -71,7 +71,7 @@ public class Engine implements Runnable {
 			}
 		}
 	}
-	
+
 	public void draw() {
 		// cleanup the canvas and set the clip
 		canvas.setColor(gc.getBackground());
