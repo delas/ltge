@@ -86,15 +86,17 @@ public class Engine implements Runnable {
 				board.height, null);
 		
 		// draw scene
-		for(AnimatedSceneObject obj : scene) {
-			TileType t = map.get(obj.getRow(), obj.getCol()).getType();
-			Point origin = coordinateSystem.toActualCoordinates(obj.getCol(), obj.getRow());
-			canvas.drawImage(obj.getSprite(),
-					board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
-					board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
-					obj.getSprite().getWidth(),
-					obj.getSprite().getHeight(),
-					null);
+		for (int layer : scene.getLayers()) {
+			for(AnimatedSceneObject obj : scene.getObjects(layer)) {
+				TileType t = map.get(obj.getRow(), obj.getCol()).getType();
+				Point origin = coordinateSystem.toActualCoordinates(obj.getCol(), obj.getRow());
+				canvas.drawImage(obj.getSprite(),
+						board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
+						board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
+						obj.getSprite().getWidth(),
+						obj.getSprite().getHeight(),
+						null);
+			}
 		}
 	}
 	
