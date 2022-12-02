@@ -63,8 +63,8 @@ public class Engine implements Runnable {
 				Point origin = coordinateSystem.toActualCoordinates(r, c);
 				mapTilesCache.getGraphics().drawImage(
 						t.getSprite(),
-						origin.x - t.getTileArea().x,
-						origin.y - t.getTileArea().y,
+						origin.x - t.getBoundingBox().x,
+						origin.y - t.getBoundingBox().y,
 						t.getSprite().getWidth(),
 						t.getSprite().getHeight(),
 						null);
@@ -98,8 +98,8 @@ public class Engine implements Runnable {
 	//				int objsInSameTile = objects.size();
 					for (AnimatedSceneObject obj : objects) {
 						canvas.drawImage(obj.getSprite(),
-								drawingOrigin.x + board.x + origin.x + (t.getTileArea().width / 2) - (obj.getSprite().getWidth() / 2),
-								drawingOrigin.y + board.y + origin.y + (t.getTileArea().height / 2) - (obj.getSprite().getHeight() / 2),
+								drawingOrigin.x + board.x + origin.x + (t.getBoundingBox().width / 2) - obj.getBoundingBox().x - (obj.getBoundingBox().width / 2),
+								drawingOrigin.y + board.y + origin.y + (t.getBoundingBox().height / 2) - obj.getBoundingBox().y - (obj.getBoundingBox().height / 2),
 								obj.getSprite().getWidth(),
 								obj.getSprite().getHeight(),
 								null);
