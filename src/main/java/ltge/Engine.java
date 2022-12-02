@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 import lombok.Getter;
-import ltge.projections.OrthographicProjection;
+import ltge.projections.Projection;
 
 /*
  * Inspiration for some of the logic from
@@ -29,7 +29,7 @@ public class Engine implements Runnable {
 	private BufferStrategy bs;
 	private Graphics canvas;
 	
-	private OrthographicProjection coordinateSystem;
+	private Projection coordinateSystem;
 	private Map map;
 	private Scene scene;
 	private Rectangle board = new Rectangle();
@@ -40,7 +40,7 @@ public class Engine implements Runnable {
 	// caching
 	private BufferedImage mapTilesCache;
 	
-	public Engine(OrthographicProjection coordinateSystem, GameCanvas gc, Map map, Scene scene) {
+	public Engine(Projection coordinateSystem, GameCanvas gc, Map map, Scene scene) {
 		this.gc = gc;
 		this.gc.setEngine(this);
 		this.gc.createBufferStrategy(2);
@@ -56,17 +56,17 @@ public class Engine implements Runnable {
 		Rectangle newBoard = coordinateSystem.getBoardSize(map);
 		board.width = newBoard.width;
 		board.height = newBoard.height;
-		mapTilesCache = new BufferedImage(board.width, board.height, BufferedImage.TYPE_INT_RGB);
+		mapTilesCache = new BufferedImage(board.width, board.height, BufferedImage.TYPE_INT_ARGB);
 		for (int r = 0; r < map.getRows(); r++) {
 			for (int c = 0; c < map.getCols(); c++) {
 				TileType t = map.get(r, c).getType();
 				Point origin = coordinateSystem.toActualCoordinates(r, c);
 				mapTilesCache.getGraphics().drawImage(
 						t.getSprite(),
-						origin.x,
-						origin.y,
-						t.getWidth(),
-						t.getHeight(),
+						origin.x - t.getTileArea().x,
+						origin.y - t.getTileArea().y,
+						t.getSprite().getWidth(),
+						t.getSprite().getHeight(),
 						null);
 			}
 		}
@@ -98,8 +98,8 @@ public class Engine implements Runnable {
 	//				int objsInSameTile = objects.size();
 					for (AnimatedSceneObject obj : objects) {
 						canvas.drawImage(obj.getSprite(),
-								drawingOrigin.x + board.x + origin.x + (t.getWidth() / 2) - (obj.getSprite().getWidth() / 2),
-								drawingOrigin.y + board.y + origin.y + (t.getHeight() / 2) - (obj.getSprite().getHeight() / 2),
+								drawingOrigin.x + board.x + origin.x + (t.getTileArea().width / 2) - (obj.getSprite().getWidth() / 2),
+								drawingOrigin.y + board.y + origin.y + (t.getTileArea().height / 2) - (obj.getSprite().getHeight() / 2),
 								obj.getSprite().getWidth(),
 								obj.getSprite().getHeight(),
 								null);
