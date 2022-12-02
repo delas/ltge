@@ -112,10 +112,10 @@ public class Engine implements Runnable {
 			((Graphics2D) this.canvas).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		}
 		
+		invalidateMapTilesCache();
+		
 		this.board.x = (gc.getWidth() - board.width) / 2;
 		this.board.y = (gc.getHeight() - board.height) / 2;
-
-		invalidateMapTilesCache();
 	}
 	
 	@Override
