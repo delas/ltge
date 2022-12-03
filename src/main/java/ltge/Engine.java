@@ -93,13 +93,17 @@ public class Engine implements Runnable {
 			for (int layer : scene.getLayers()) {
 				for(Point p : scene.getObjectsAtCoordinates(layer)) {
 					TileType t = map.get(p.y, p.x).getType();
-					Point origin = coordinateSystem.toActualCoordinates(p.y, p.x);
+					Point objectOrigin = coordinateSystem.toActualCoordinates(p.y, p.x);
 					List<AnimatedSceneObject> objects = scene.getObjects(p, layer);
-	//				int objsInSameTile = objects.size();
-					for (AnimatedSceneObject obj : objects) {
+					int objsInSameTile = objects.size();
+					for (int i = 0; i < objsInSameTile; i++) {
+						AnimatedSceneObject obj = objects.get(i);
+						int horizSpaceBetweeObj = t.getBoundingBox().width / (objsInSameTile + 1);
 						canvas.drawImage(obj.getSprite(),
-								drawingOrigin.x + board.x + origin.x + (t.getBoundingBox().width / 2) - obj.getBoundingBox().x - (obj.getBoundingBox().width / 2),
-								drawingOrigin.y + board.y + origin.y + (t.getBoundingBox().height / 2) - obj.getBoundingBox().y - (obj.getBoundingBox().height / 2),
+								//                                           center of object around its bounding box
+								//-------------   -------   --------------   ------------------------------------------------------------------------------------------
+								drawingOrigin.x + board.x + objectOrigin.x + (horizSpaceBetweeObj * (i + 1)) - obj.getBoundingBox().x - (obj.getBoundingBox().width / 2),
+								drawingOrigin.y + board.y + objectOrigin.y + (t.getBoundingBox().height / 2) - obj.getBoundingBox().y - (obj.getBoundingBox().height / 2),
 								obj.getSprite().getWidth(),
 								obj.getSprite().getHeight(),
 								null);
