@@ -2,9 +2,6 @@ package ltge;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,34 +21,29 @@ public class AnimatedSceneObject {
 	private int progress = 0;
 	@Setter private Scene scene;
 	
-	public AnimatedSceneObject(String file) {
-		this(null, 0, file);
+	public AnimatedSceneObject(BufferedImage image) {
+		this(null, 0, image);
 	}
 	
-	public AnimatedSceneObject(Rectangle boundingBox, String file) {
-		this(boundingBox, 0, file);
+	public AnimatedSceneObject(Rectangle boundingBox, BufferedImage image) {
+		this(boundingBox, 0, image);
 	}
 	
-	public AnimatedSceneObject(int msBetweenFrames, String...files) {
-		this(null, msBetweenFrames, files);
+	public AnimatedSceneObject(int msBetweenFrames, BufferedImage...images) {
+		this(null, msBetweenFrames, images);
 	}
 	
-	public AnimatedSceneObject(Rectangle boundingBox, int msBetweenFrames, String...files) {
+	public AnimatedSceneObject(Rectangle boundingBox, int msBetweenFrames, BufferedImage...images) {
 		this.id = counter++;
 		this.msBetweenFrames = msBetweenFrames;
-		this.name = files[0];
-		try {
-			sprite = new BufferedImage[files.length];
-			for(int i = 0; i < files.length; i++) {
-				this.sprite[i] = ImageIO.read(TileType.class.getClassLoader().getResourceAsStream(files[i]));
-			}
-			if (boundingBox == null) {
-				this.boundingBox = new Rectangle(sprite[0].getWidth(), sprite[0].getHeight());
-			} else {
-				this.boundingBox = boundingBox;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		sprite = new BufferedImage[images.length];
+		for(int i = 0; i < images.length; i++) {
+			this.sprite[i] = images[i];
+		}
+		if (boundingBox == null) {
+			this.boundingBox = new Rectangle(sprite[0].getWidth(), sprite[0].getHeight());
+		} else {
+			this.boundingBox = boundingBox;
 		}
 	}
 
