@@ -21,7 +21,7 @@ public class TileType {
 		try {
 			sprite = ImageIO.read(TileType.class.getClassLoader().getResourceAsStream(file));
 			if (boundingBox == null) {
-				this.boundingBox = new Rectangle(sprite.getWidth(), sprite.getHeight());
+				this.boundingBox = new Rectangle(0, 0, sprite.getWidth(), sprite.getHeight());
 			} else {
 				this.boundingBox = boundingBox;
 			}

@@ -57,16 +57,17 @@ public class Engine implements Runnable {
 		board.width = newBoard.width;
 		board.height = newBoard.height;
 		mapTilesCache = new BufferedImage(board.width, board.height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = mapTilesCache.createGraphics();
+		g2d.setColor(Color.red);
+		g2d.fillRect(0, 0, board.width, board.height);
 		for (int r = 0; r < map.getRows(); r++) {
 			for (int c = 0; c < map.getCols(); c++) {
 				TileType t = map.get(r, c).getType();
 				Point origin = coordinateSystem.toActualCoordinates(r, c);
-				mapTilesCache.getGraphics().drawImage(
+				g2d.drawImage(
 						t.getSprite(),
 						origin.x - t.getBoundingBox().x,
 						origin.y - t.getBoundingBox().y,
-						t.getSprite().getWidth(),
-						t.getSprite().getHeight(),
 						null);
 			}
 		}
@@ -85,8 +86,7 @@ public class Engine implements Runnable {
 				mapTilesCache,
 				drawingOrigin.x + board.x,
 				drawingOrigin.y + board.y,
-				board.width,
-				board.height, null);
+				null);
 		
 		// draw scene
 		synchronized (scene) {
@@ -99,7 +99,8 @@ public class Engine implements Runnable {
 					for (int i = 0; i < objsInSameTile; i++) {
 						AnimatedSceneObject obj = objects.get(i);
 						int horizSpaceBetweeObj = t.getBoundingBox().width / (objsInSameTile + 1);
-						canvas.drawImage(obj.getSprite(),
+						canvas.drawImage(
+								obj.getSprite(),
 								//                                           center of object around its bounding box
 								//-------------   -------   --------------   ------------------------------------------------------------------------------------------
 								drawingOrigin.x + board.x + objectOrigin.x + (horizSpaceBetweeObj * (i + 1)) - obj.getBoundingBox().x - (obj.getBoundingBox().width / 2),
