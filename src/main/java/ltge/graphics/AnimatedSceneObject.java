@@ -2,6 +2,8 @@ package ltge.graphics;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,47 +14,68 @@ public class AnimatedSceneObject {
 
 	private static int counter = 1;
 	
+	// general fields
 	@EqualsAndHashCode.Include @Getter private int id;
-	@Getter private String name;
-	private BufferedImage[] sprite;
+	@Setter private Scene scene;
+	
+	// configuration of the object
+	@Getter @Setter private String status = "initial";
+	
+	// graphics related aspect
+	private HashMap<String, ArrayList<BufferedImage>> sprite;
 	@Getter private Rectangle boundingBox;
+	
+	// fields needed for animating
 	private int msBetweenFrames;
 	private long lastPaint = System.nanoTime();
 	private int progress = 0;
-	@Setter private Scene scene;
 	
 	public AnimatedSceneObject(BufferedImage image) {
-		this(null, 0, image);
+		this(null, "initial", 0, image);
 	}
 	
 	public AnimatedSceneObject(Rectangle boundingBox, BufferedImage image) {
-		this(boundingBox, 0, image);
+		this(boundingBox, "initial", 0, image);
 	}
 	
 	public AnimatedSceneObject(int msBetweenFrames, BufferedImage...images) {
-		this(null, msBetweenFrames, images);
+		this(null, "initial", msBetweenFrames, images);
 	}
 	
-	public AnimatedSceneObject(Rectangle boundingBox, int msBetweenFrames, BufferedImage...images) {
+	public AnimatedSceneObject(String initialStatusLabel, int msBetweenFrames, BufferedImage...images) {
+		this(null, initialStatusLabel, msBetweenFrames, images);
+	}
+	
+	public AnimatedSceneObject(Rectangle boundingBox, String initialStatusLabel, int msBetweenFrames, BufferedImage...images) {
 		this.id = counter++;
 		this.msBetweenFrames = msBetweenFrames;
-		sprite = new BufferedImage[images.length];
-		for(int i = 0; i < images.length; i++) {
-			this.sprite[i] = images[i];
-		}
+		this.sprite = new HashMap<>();
+		this.status = initialStatusLabel;
+		addState(initialStatusLabel, images);
 		if (boundingBox == null) {
-			this.boundingBox = new Rectangle(sprite[0].getWidth(), sprite[0].getHeight());
+			this.boundingBox = new Rectangle(images[0].getWidth(), images[0].getHeight());
 		} else {
 			this.boundingBox = boundingBox;
 		}
 	}
 
+	public void addState(String label, BufferedImage...images) {
+		sprite.put(label, new ArrayList<>(images.length));
+		for(int i = 0; i < images.length; i++) {
+			sprite.get(label).add(images[i]);
+		}
+	}
+	
 	public BufferedImage getSprite() {
+		return getSprite(status);
+	}
+
+	public BufferedImage getSprite(String label) {
 		if (System.nanoTime() >= lastPaint + (msBetweenFrames * 1000000)) {
-			progress = (progress + 1) % sprite.length;
+			progress = (progress + 1) % sprite.get(label).size();
 			lastPaint = System.nanoTime();
 		}
-		return sprite[progress];
+		return sprite.get(label).get(progress);
 	}
 	
 	public int getRow() {
