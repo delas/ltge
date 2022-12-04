@@ -35,6 +35,9 @@ public class Engine implements Runnable {
 	private Rectangle board = new Rectangle();
 	@Getter private Point drawingOrigin = new Point(0, 0);
 	
+	private Painter backgroundPainter;
+	private Painter foregroundPainter;
+	
 	private Object lock = new Object();
 	
 	// caching
@@ -52,14 +55,21 @@ public class Engine implements Runnable {
 		setViewportSize(gc.getWidth(), gc.getHeight());
 	}
 	
+	public void setBackgroundPainter(Painter p) {
+		this.backgroundPainter = p;
+	}
+	
+	public void setForegroundPainter(Painter p) {
+		this.foregroundPainter = p;
+	}
+	
 	private void invalidateMapTilesCache() {
 		Rectangle newBoard = coordinateSystem.getBoardSize(map);
 		board.width = newBoard.width;
 		board.height = newBoard.height;
 		mapTilesCache = new BufferedImage(board.width, board.height, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = mapTilesCache.createGraphics();
-		g2d.setColor(Color.red);
-		g2d.fillRect(0, 0, board.width, board.height);
+		
 		for (int r = 0; r < map.getRows(); r++) {
 			for (int c = 0; c < map.getCols(); c++) {
 				TileType t = map.get(r, c).getType();
@@ -77,6 +87,12 @@ public class Engine implements Runnable {
 		// cleanup the canvas and set the clip
 		canvas.setColor(gc.getBackground());
 		canvas.fillRect(0, 0, gc.getWidth(), gc.getHeight());
+		
+		// call the background painter
+		if (backgroundPainter != null) {
+			Rectangle boardArea = new Rectangle(drawingOrigin.x + board.x, drawingOrigin.y + board.y, board.width, board.height);
+			backgroundPainter.paint(canvas, boardArea);
+		}
 		
 		// draw map tiles
 		if (mapTilesCache == null) {
@@ -111,6 +127,12 @@ public class Engine implements Runnable {
 					}
 				}
 			}
+		}
+		
+		// call the foreground painter
+		if (foregroundPainter != null) {
+			Rectangle boardArea = new Rectangle(drawingOrigin.x + board.x, drawingOrigin.y + board.y, board.width, board.height);
+			foregroundPainter.paint(canvas, boardArea);
 		}
 	}
 	
