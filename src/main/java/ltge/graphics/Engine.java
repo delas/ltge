@@ -1,4 +1,4 @@
-package ltge;
+package ltge.graphics;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 import lombok.Getter;
-import ltge.projections.Projection;
+import ltge.graphics.projections.Projection;
 
 /*
  * Inspiration for some of the logic from

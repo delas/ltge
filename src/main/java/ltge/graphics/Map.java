@@ -1,4 +1,4 @@
-package ltge;
+package ltge.graphics;
 
 import lombok.Getter;
 

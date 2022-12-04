@@ -1,10 +1,10 @@
-package ltge.projections;
+package ltge.graphics.projections;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
 import lombok.Setter;
-import ltge.Map;
+import ltge.graphics.Map;
 
 public class OrthographicProjection implements Projection {
 

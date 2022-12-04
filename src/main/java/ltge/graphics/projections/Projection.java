@@ -1,9 +1,9 @@
-package ltge.projections;
+package ltge.graphics.projections;
 
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import ltge.Map;
+import ltge.graphics.Map;
 
 public interface Projection {
 

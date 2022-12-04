@@ -1,4 +1,4 @@
-package ltge;
+package ltge.graphics;
 
 import java.awt.Canvas;
 import java.awt.event.ComponentAdapter;
