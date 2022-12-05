@@ -59,10 +59,10 @@ public class Scene {
 	}
 	
 	public List<AnimatedSceneObject> getObjects(Point logicalCoordinates, int layer) {
-		if (objects.containsKey(layer)) {
+		if (objects.containsKey(layer) && objects.get(layer).containsKey(logicalCoordinates)) {
 			return objects.get(layer).get(logicalCoordinates);
 		}
-		return null;
+		return List.of();
 	}
 
 	public List<Point> getObjectsAtCoordinates(int layer) {
