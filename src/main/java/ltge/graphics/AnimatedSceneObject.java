@@ -1,7 +1,9 @@
 package ltge.graphics;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,7 +21,7 @@ public class AnimatedSceneObject {
 	@Setter private Scene scene;
 	
 	// configuration of the object
-	@Getter @Setter private String status = "initial";
+	@Getter private String status = "initial";
 	
 	// graphics related aspect
 	private HashMap<String, ArrayList<BufferedImage>> sprite;
@@ -29,6 +31,8 @@ public class AnimatedSceneObject {
 	private int msBetweenFrames;
 	private long lastPaint = System.nanoTime();
 	private int progress = 0;
+	
+	@Getter private PropertyChangeSupport support;
 	
 	public AnimatedSceneObject(BufferedImage image) {
 		this(null, "initial", 0, image);
@@ -57,6 +61,7 @@ public class AnimatedSceneObject {
 		} else {
 			this.boundingBox = boundingBox;
 		}
+		this.support = new PropertyChangeSupport(this);
 	}
 
 	public void addState(String label, BufferedImage...images) {
@@ -100,6 +105,14 @@ public class AnimatedSceneObject {
 			int l = getLayer();
 			scene.remove(this);
 			scene.add(this, row, col, l);
+			support.firePropertyChange("position", new Point(col, row), new Point(getCol(), getRow()));
+//			System.out.println("fire?");
 		}
+	}
+	
+	public void setStatus(String status) {
+		String old = this.status;
+		this.status = status;
+		support.firePropertyChange("status", old, status);
 	}
 }

@@ -60,7 +60,7 @@ public class Scene {
 	
 	public List<AnimatedSceneObject> getObjects(Point logicalCoordinates, int layer) {
 		if (objects.containsKey(layer) && objects.get(layer).containsKey(logicalCoordinates)) {
-			return objects.get(layer).get(logicalCoordinates);
+			return List.of(objects.get(layer).get(logicalCoordinates).toArray(new AnimatedSceneObject[] {}));
 		}
 		return List.of();
 	}
@@ -87,5 +87,11 @@ public class Scene {
 	
 	public int getObjectLayer(AnimatedSceneObject object) {
 		return objectsToLayer.get(object);
+	}
+	
+	public void registerAllObjectsToEngine(Engine engine) {
+		for(AnimatedSceneObject obj : objectsToCoordinates.keySet()) {
+			obj.getSupport().addPropertyChangeListener(engine);
+		}
 	}
 }

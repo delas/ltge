@@ -7,13 +7,13 @@ import java.util.Random;
 
 import javazoom.jl.player.Player;
 
-public class AudioUtils {
+public class AudioManager {
 
 	private static Random rnd = new Random();
 	private static Player mp3Player = null;
 	
 	public static OggClip load(String audioFile) throws IOException {
-		return new OggClip(AudioUtils.class.getClassLoader().getResourceAsStream(audioFile));
+		return new OggClip(AudioManager.class.getClassLoader().getResourceAsStream(audioFile));
 	}
 	
 	public static void playOggClip(OggClip clip) {
@@ -39,7 +39,7 @@ public class AudioUtils {
 			public void run() {
 				try {
 					String musicFile = mp3MusicFiles[rnd.nextInt(mp3MusicFiles.length)];
-					BufferedInputStream buffer = new BufferedInputStream(AudioUtils.class.getClassLoader().getResourceAsStream(musicFile));
+					BufferedInputStream buffer = new BufferedInputStream(AudioManager.class.getClassLoader().getResourceAsStream(musicFile));
 					mp3Player = new Player(buffer);
 					mp3Player.play();
 				} catch (Exception ex) {

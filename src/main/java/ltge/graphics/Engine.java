@@ -1,6 +1,5 @@
 package ltge.graphics;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -8,6 +7,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import lombok.Getter;
@@ -18,30 +19,26 @@ import ltge.graphics.projections.Projection;
  * uIso: https://www.luisrios.eti.br/public/en_us/projects/uiso/ and from
  * https://www.youtube.com/watch?v=4iPEjFUZNsw.
  */
-public class Engine implements Runnable {
+public class Engine implements PropertyChangeListener {
 
-	private boolean running = false;
-	private final double UPDATE_CAP = 1./30.;
+	protected GameCanvas gc;
+	protected BufferStrategy bs;
+	protected Graphics canvas;
 	
-	private Thread engine;
-
-	private GameCanvas gc;
-	private BufferStrategy bs;
-	private Graphics canvas;
+	protected Projection coordinateSystem;
+	protected Map map;
+	protected Scene scene;
+	protected Rectangle board = new Rectangle();
+	@Getter protected Point drawingOrigin = new Point(0, 0);
 	
-	private Projection coordinateSystem;
-	private Map map;
-	private Scene scene;
-	private Rectangle board = new Rectangle();
-	@Getter private Point drawingOrigin = new Point(0, 0);
+	protected Painter backgroundPainter;
+	protected Painter foregroundPainter;
 	
-	private Painter backgroundPainter;
-	private Painter foregroundPainter;
-	
-	private Object lock = new Object();
+	protected Object lock = new Object();
+	private double lastPaint = System.nanoTime();
 	
 	// caching
-	private BufferedImage mapTilesCache;
+	private BufferedImage mapTilesCache = null;
 	
 	public Engine(Projection coordinateSystem, GameCanvas gc, Map map, Scene scene) {
 		this.gc = gc;
@@ -51,6 +48,7 @@ public class Engine implements Runnable {
 		this.coordinateSystem = coordinateSystem;
 		this.map = map;
 		this.scene = scene;
+		this.scene.registerAllObjectsToEngine(this);
 		
 		setViewportSize(gc.getWidth(), gc.getHeight());
 	}
@@ -97,12 +95,12 @@ public class Engine implements Runnable {
 		// draw map tiles
 		if (mapTilesCache == null) {
 			invalidateMapTilesCache();
+			canvas.drawImage(
+					mapTilesCache,
+					drawingOrigin.x + board.x,
+					drawingOrigin.y + board.y,
+					null);
 		}
-		canvas.drawImage(
-				mapTilesCache,
-				drawingOrigin.x + board.x,
-				drawingOrigin.y + board.y,
-				null);
 		
 		// draw scene
 		synchronized (scene) {
@@ -136,11 +134,6 @@ public class Engine implements Runnable {
 		}
 	}
 	
-	private void drawFPS(String fps) {
-		canvas.setColor(Color.black);
-		canvas.drawString(fps, 10, 20);
-	}
-	
 	public void setViewportSize(int width, int height) {
 		synchronized (lock) {
 			this.bs = gc.getBufferStrategy();
@@ -155,61 +148,14 @@ public class Engine implements Runnable {
 		this.board.x = (gc.getWidth() - board.width) / 2;
 		this.board.y = (gc.getHeight() - board.height) / 2;
 	}
-	
-	@Override
-	public void run() {
-		try {
-			running = true;
-			
-			boolean render = false;
-			double firstTime = 0;
-			double lastTime = System.nanoTime() / 1000000000d;
-			double passedTime = 0;
-			double unprocessedTime = 0;
-			
-			double frameTime = 0;
-			int frames = 0;
-			int fps = 0;
 
-			while (running) {
-				render = false;
-				firstTime = System.nanoTime() / 1000000000d;
-				passedTime = firstTime - lastTime;
-				lastTime = firstTime;
-				
-				unprocessedTime += passedTime;
-				frameTime += passedTime;
-				
-				while (unprocessedTime >= UPDATE_CAP) {
-					unprocessedTime -= UPDATE_CAP;
-					render = true;
-					
-					if (frameTime >= 1) {
-						frameTime = 0;
-						fps = frames;
-						frames = 0;
-					}
-				}
-				
-				if (render) {
-					synchronized (lock) {
-						draw();
-						drawFPS(String.format("FPS: %d", fps));
-						bs.show();
-					}
-					
-					frames++;
-				} else {
-					Thread.sleep(5);
-				}
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		double toPaint = System.nanoTime();
+		if ((toPaint - lastPaint) / 1_000_000.0 > 5) {
+			draw();
+			bs.show();
+			lastPaint = toPaint;
 		}
-	}
-	
-	public void init() {
-		engine = new Thread(this);
-		engine.start();
 	}
 }
