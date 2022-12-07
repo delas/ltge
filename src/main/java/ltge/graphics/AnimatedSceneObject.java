@@ -2,10 +2,14 @@ package ltge.graphics;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.swing.Timer;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,6 +35,7 @@ public class AnimatedSceneObject {
 	private int msBetweenFrames;
 	private long lastPaint = System.nanoTime();
 	private int progress = 0;
+	protected boolean arePositionUpdatesUrgent = false;
 	
 	@Getter private PropertyChangeSupport support;
 	
@@ -62,6 +67,13 @@ public class AnimatedSceneObject {
 			this.boundingBox = boundingBox;
 		}
 		this.support = new PropertyChangeSupport(this);
+		
+		new Timer(msBetweenFrames, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				support.firePropertyChange("new-frame", false, true);
+			}
+		}).start();
 	}
 
 	public void addState(String label, BufferedImage...images) {
@@ -105,8 +117,11 @@ public class AnimatedSceneObject {
 			int l = getLayer();
 			scene.remove(this);
 			scene.add(this, row, col, l);
-			support.firePropertyChange("position", new Point(col, row), new Point(getCol(), getRow()));
-//			System.out.println("fire?");
+			if (arePositionUpdatesUrgent) {
+				support.firePropertyChange("URGENT", new Point(col, row), new Point(getCol(), getRow()));
+			} else {
+				support.firePropertyChange("position", new Point(col, row), new Point(getCol(), getRow()));
+			}
 		}
 	}
 	
@@ -114,5 +129,6 @@ public class AnimatedSceneObject {
 		String old = this.status;
 		this.status = status;
 		support.firePropertyChange("status", old, status);
+//		System.out.println("fire?");
 	}
 }

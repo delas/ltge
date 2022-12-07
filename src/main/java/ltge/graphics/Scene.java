@@ -89,7 +89,7 @@ public class Scene {
 		return objectsToLayer.get(object);
 	}
 	
-	public void registerAllObjectsToEngine(Engine engine) {
+	public void registerAllObjectsToEngine(EngineCanvas engine) {
 		for(AnimatedSceneObject obj : objectsToCoordinates.keySet()) {
 			obj.getSupport().addPropertyChangeListener(engine);
 		}
