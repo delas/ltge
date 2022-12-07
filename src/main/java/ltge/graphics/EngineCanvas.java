@@ -4,6 +4,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -40,6 +42,15 @@ public class EngineCanvas extends JPanel implements PropertyChangeListener {
 		this.scene.registerAllObjectsToEngine(this);
 		
 		invalidateMapTilesCache();
+		
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				board.x = (getWidth() - board.width) / 2;
+				board.y = (getHeight() - board.height) / 2;
+			}
+		});
+
 	}
 	
 	public void invalidateMapTilesCache() {
