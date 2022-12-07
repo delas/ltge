@@ -40,7 +40,7 @@ public class EngineCanvas extends JPanel implements PropertyChangeListener {
 		this.map = map;
 		this.scene = scene;
 		this.scene.registerAllObjectsToEngine(this);
-		
+
 		invalidateMapTilesCache();
 		
 		addComponentListener(new ComponentAdapter() {

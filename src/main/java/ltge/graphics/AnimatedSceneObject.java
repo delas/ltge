@@ -22,7 +22,7 @@ public class AnimatedSceneObject {
 	
 	// general fields
 	@EqualsAndHashCode.Include @Getter private int id;
-	@Setter private Scene scene;
+	@Getter @Setter private Scene scene;
 	
 	// configuration of the object
 	@Getter private String status = "initial";
@@ -129,6 +129,5 @@ public class AnimatedSceneObject {
 		String old = this.status;
 		this.status = status;
 		support.firePropertyChange("status", old, status);
-//		System.out.println("fire?");
 	}
 }
